@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="hello">Hello World, QRLiveActivity!</string>
+    <string name="app_name">QR Live</string>
+    <string name="result_succeeded">result succeeded!</string>
+    <string name="result_failed">result failed!</string>
+
+</resources>
