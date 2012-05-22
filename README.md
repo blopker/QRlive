@@ -1,4 +1,9 @@
-qrlive
+QR Live
 ======
+###Augmented reality QR code interaction for Android
 
-Augmented reality QR code interaction.
+Info
+----
+The full write up for this project is here:
+http://qrlive.bluegouda.com
+
