@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]><html class="ie ie6" lang="en"> <![endif]-->
+<!--[if IE 7 ]><html class="ie ie7" lang="en"> <![endif]-->
+<!--[if IE 8 ]><html class="ie ie8" lang="en"> <![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!--><html lang="en"> <!--<![endif]-->
+<head>
+
+	<!-- Basic Page Needs
+  ================================================== -->
+	<meta charset="utf-8">
+	<title>QR Live</title>
+	<meta name="description" content="CS290I, QRLive project">
+	<meta name="author" content="Karl Bo Lopker">
+
+	<!-- Mobile Specific Metas
+  ================================================== -->
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+	<!-- CSS
+  ================================================== -->
+	<link rel="stylesheet" href="stylesheets/base.css">
+	<link rel="stylesheet" href="stylesheets/skeleton.css">
+	<link rel="stylesheet" href="stylesheets/layout.css">
+
+	<!--[if lt IE 9]>
+		<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+
+	<!-- Favicons
+	================================================== -->
+	<link rel="shortcut icon" href="images/favicon.ico">
+	<link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+
+</head>
+<body>
+
+
+
+	<!-- Primary Page Layout
+	================================================== -->
+
+	<!-- Delete everything in this .container and get started on your own site! -->
+
+	<div class="container">
+		<div class="sixteen columns">
+			<h1 class="remove-bottom" style="margin-top: 40px">CS290I: QR Live</h1>
+			<h5>Karl Bo Lopker</h5>
+			<hr />
+		</div>
+		<div class="row clearfix">
+			<div class="twelve columns alpha">
+				<h3>About QR Live</h3>
+				<p>Current QR code reader systems make the user learn a 2D interface to interact with 3D real world objects. The user must translate what they see in the world into some arbitrary construct on their screens. This translation can feel confusing and unnatural. A new solution is needed.
+				For my project I wanted to create something that someone might actually use.  I use QR codes on my phone on a weekly basis, but have been pretty unsatisfied with the QR readers available. My main grievance is not their accuracy or response times; it’s the jolting transition of seeing a QR code in 3D, but having to deal with its contents in some contrived 2D menu system
+				</p>
+				<h5>
+					That's where QR Live comes in.
+				</h5>
+			</div>
+			<div class="four columns omega">
+				<img class="scale-with-grid" src="images/1332265919058.png"/>
+				<div class="caption">QR Code</div>
+			</div>
+		</div>
+		<div class="row clearfix">
+			<div class="nine columns">
+				<a href="images/super.jpg">
+				<img class="scale-with-grid" src="images/super.jpg"/>
+				</a>
+				<div class="caption">Overlay Mockup</div>
+			</div>
+			<div class="six columns offset-by-one">
+				<h3>The Goal</h3>
+				<p>The goal is to consume QR codes as naturally as possible. One way to do this is by overlaying QR translations onto markers themselves. Overlays remove the hassle of figuring out how to get the information since it's represented exactly where it is in the real world. To consume a QR code all a user has to do is press the marker they want on screen and the phone can contextually handle the information.
+				</p>
+			</div>
+		</div>
+		<div class="row clearfix">
+			<div class="six columns">
+				<h3>The Trick</h3>
+				<p>QRLive is basically a marker tracker. The trick is that it doesn't know what the marker is beforehand. QRLive will have a detection stage and a tracking stage. During the detection stage, QRLive will scan the image at some interval or on command looking for QR codes. Once a code is found, QRLive will save it and add it as a target and run analysis on it. The analysis has two stages. First the image is run through a feature detector like SURF. Second, the key points found must be turned into key point descriptions.
+			</p>
+			</div>
+			<div class="ten columns">
+				<a href="images/FAST.jpeg">
+				<img class="scale-with-grid" src="images/FAST.jpeg"/>
+				</a>
+				<div class="caption">Feature Detection Points</div>
+			</div>
+		</div>
+
+		<div class="sixteen columns">
+			<h3>The Core Software</h3>
+			<h6>QR Live uses these core libraries:</h6>
+			<ul class="square">
+				<li><strong>Android SDK</strong> (<a href="http://developer.android.com/sdk/index.html">http://developer.android.com/sdk/index.html</a>): Since QR Live is targeted at Android devices, this library is mandatory. This SDK handles everything except the core mixed reality stuff.
+				</li>
+				<li><strong>ZXing</strong> (<a href="http://code.google.com/p/zxing/">http://code.google.com/p/zxing/</a>): This library does QR code detection and encoding. When QR Live is triggered to find a new code, it calls the ZXing library to retrieve the information as a string. QR Live then instructs ZXing to re-encode the QR code with the gathered data. The bitmap produced gives QR Live a model of the code for tracking.
+				</li>
+				<li><strong>OpenCV</strong> (<a href="http://opencv.willowgarage.com/wiki/">http://opencv.willowgarage.com/wiki/</a>): The standard when it comes to computer vision. QR Live relies heavily on OpenCV to do everything from camera control to feature detection, extraction and matching.
+				</li>
+			</ul>
+		</div>
+		<div class="row clearfix">
+			<div class="eight columns">
+				<a href="images/out.jpg">
+				<img class="scale-with-grid" src="images/out.jpg"/>
+				</a>
+				<div class="caption">SURF: Speeded Up Robust Features</div>
+			</div>
+			<div class="seven columns offset-by-one">
+				<h3>The Algorithms</h3>
+				<p>The majority of time spent on this project involved finding out about how all the feature detection, extraction and matching algorithms work together. Here I described what I’ve tried, what works and what is practical to use.</p>
+				<h4>Feature Detection</h4>
+					Detection happens once for each new QR code encoded and ideally for every frame of scene captured by the camera. The goal is to find interesting points in the code and the scene with the hope of matching them later to find the position of the code in the scene.
+				<h5>SURF</h5>
+				<p>
+					Speeded Up Robust Features was my first choice. Since 'Speed' is in the name I thought it would be perfect for my application. As demonstrated in this image SURF does an excellent job of finding feature points in both scene and code. However on a CPU restricted device like a phone SURF takes far too long. Just the detection step would stop the phone for an entire second. Most of these devices are not multithreaded so a process tying up that much time is unacceptable.
+				</p>
+			</div>
+		</div>
+		<div class="row clearfix">
+			<div class="eight columns">
+				<h5>FAST</h5>
+				<p>
+					Features from Accelerated Segment Test was well, fast. The camera could run at 15 fps which is hard to tell from real-time. There were a couple of issues though. First the FAST detector always returned zero detected points on the encoded code but found a lot of points in the scene, especially around the code in the scene. Since FAST is a corner detector I assumed it would have a field day on the clean, black and white generated codes. I was wrong. As you can see from the test image I had to apply a light gradient to the code for FAST to detect anything. I could have done this in QR Live, but I didn’t want to unless I knew exactly what was going on. The other problem with FAST is that its feature detection is kinda random. If you follow the vectors that connect ‘matching’ feature points you’ll see that none of them really correlate. This makes some of the later steps, like finding homogrophy, very messy.
+				</p>
+				<h5>GFTT</h5>
+				<p>
+					Good Features To Track is a good middle ground between SURF for robust features and FAST for speed. Even though GFTT was considerably faster than SURF, I still had to down size the scene image by half to make it useable. Well, it’s not really usable now at four frames per second, but better than SURF.
+				</p>
+			</div>
+			<div class="eight columns">
+				<a href="images/outFAST.jpg">
+				<img class="scale-with-grid" src="images/outFAST.jpg"/>
+				</a>
+				<div class="caption">FAST: Features from Accelerated Segment Test</div>
+			</div>
+		</div>
+		<div class="row clearfix">
+			<div class="twelve columns offset-by-two">
+				<h4>Description Extracting</h4>
+				<p>Description extracting happens after an array of key points are found. Key points are represented by x and y coordinate values. An extractor takes these key points and evaluates the area around them in a scene to try and uniquely extract each point into a descriptor. A descriptor is a multidimensional vector, 64 dimensions in this case.
+				</p>
+				<p>
+					OpenCV has several description extractors, but they are all based off the main General Extractor. I couldn’t tell much of a difference between them so the SURF extractor is used. Through testing it seems to do just as well as the others.
+				</p>
+			</div>
+		</div>
+		<div class="row clearfix">
+			<div class="six columns">
+				<h4>Description Matching</h4>
+				<p>
+					After we’ve converted both our scene and code key points into descriptors it’s time to see which ones match each other. There are two choices that must be made here. Deciding what makes two descriptors equal and how to compare them.  Since descriptors are just vectors, there are several way to compare them. OpenCV provides four; Euclidian, Squared Euclidian, Manhattan, and Hamming. QR Live uses the Euclidian distance to compare descriptors, just because I was most familiar with that method. The other choice on how to compare them falls between using the brute force method or the Flann method. Brute force simply checks each descriptor against each other. Flann uses the Fast Approximate Nearest Neighbor Search Library to lower running time. I tested both and could not detect a difference in matching results. Since Flann was faster it is the winner.
+				</p>
+			</div>
+			<div class="ten columns">
+				<a href="images/out1.jpg">
+					<img class="scale-with-grid" src="images/out1.jpg"/>
+				</a>
+				<div class="caption">Matching gone wrong</div>
+			</div>
+		</div>
+		<div class="row clearfix">
+			<div class="nine columns">
+				<a href="images/droidAtScreen-5.png">
+					<img class="scale-with-grid" src="images/droidAtScreen-5.png"/>
+				</a>
+				<div class="caption">Found it!</div>
+			</div>
+			<div class="six columns offset-by-one">
+				<h4>QR Detection</h4>
+				<p>
+					Now that feature detection, extraction and matching are done we are able to try and find the QR code within the scene. Since we are not using a really robust feature detector like SURF we probably won’t be able to generate a homography to map the code directly to the scene. Therefore our best bet is to find a cluster of points and disregard outliers. To accomplish this I treated each point like a point mass and found the image's center of mass. I assigned a mass to each point based on one over the square of the distance from each point to each neighbor. This has the effect of giving outliers very little weight while making points close together very heavy. Check out the demo!
+				</p>
+			</div>
+
+		</div>
+		<div class="eleven columns offset-by-two">
+			<h3>Demo</h3>
+			<object style="height: 360px; width: 640px"><param name="movie" value="http://www.youtube.com/v/9lMAZdqS_Pc?version=3&feature=player_detailpage"><param name="allowFullScreen" value="true"><param name="allowScriptAccess" value="always"><embed src="http://www.youtube.com/v/9lMAZdqS_Pc?version=3&feature=player_detailpage" type="application/x-shockwave-flash" allowfullscreen="true" allowScriptAccess="always" width="640" height="360"></object>
+			<div class="caption">QR code detection</div>
+		</div>
+		<div class="sixteen columns">
+			<h3>Conclusion</h3>
+			<p>
+				When I started this project I had no idea how difficult it would be. I thought there was one clear solution that I would just use. It turned out that most of my time was spent experimenting with all the different choices, trying to figure out what suited my application best. And although I never got to feature tracking I feel like I learned a lot about detection and general Android programming (this is my first app). Going forward I would like to test some more variables related to detection to make it more robust. I could then move on to tracking.
+			</p>
+		</div>
+		<div class="row clearfix">
+			<div class="twelve columns">
+				<h3>Links</h3>
+				<ul class="square">
+					<li><strong>QR Live Source</strong> (<a href="https://github.com/blopker/QRlive">QRLive</a>)
+					</li>
+					<li><strong>CS290I</strong> (<a href="http://www.cs.ucsb.edu/~holl/CS290I/">http://www.cs.ucsb.edu/~holl/CS290I/</a>)
+					</li>
+					<li><strong>My resume</strong> (<a href="http://blopker.com">blopker.com</a>)
+					</li>
+				</ul>
+			</div>
+		</div>
+
+	</div><!-- container -->
+
+<!-- End Document
+================================================== -->
+</body>
+</html>

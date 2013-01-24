@@ -1,0 +1,11 @@
+names of each member of the group
+
+brief overview of the purpose and goals
+
+technical description of the Mixed Reality mechanisms and techniques implemented
+
+details about the design, development process, and algorithms, or whatever else you feel is unique about your project
+
+Give credit to code, algorithms, research papers, models, and any other information
+
+a link to your source code (a single zip file or tarball) 
