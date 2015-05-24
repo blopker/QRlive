@@ -5,5 +5,5 @@ QR Live
 Info
 ----
 The full write up for this project is here:
-http://qrlive.bluegouda.com
+http://qrlive.blopker.com
 
